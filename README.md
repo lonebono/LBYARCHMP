@@ -3,7 +3,7 @@ Follow the instructions to run these files
 ### 0. Clone
 
 - Clone into any root folder
-
+- git clone https://github.com/lonebono/LBYARCHMP.git
 ### 1. NASM
 
 - Download the latest ver: https://www.nasm.us/pub/nasm/releasebuilds/
