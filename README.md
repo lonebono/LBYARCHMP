@@ -9,7 +9,7 @@ Follow the instructions to run these files
 - Download the latest ver: https://www.nasm.us/pub/nasm/releasebuilds/
 - Create a `nasm` in the project root and extract `nasm.exe` there
 
-### 2. MinGW-w64 (GCC)
+### 2. MinGW-w64
 
 - Download the latest ver: https://winlibs.com/#download-release
 - Create a `mingw64` in the project root and extract it to that folder there
