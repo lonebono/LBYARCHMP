@@ -1,6 +1,15 @@
-# LBYARCH MP2 x86 to C Interface
+# LBYARCH S19A MP2 x86 to C Interface
 
-Follow the instructions to run these files
+## Group 10
+
+- Sy, Vaughn Marick
+- Tengco, Martin
+
+## Specifications
+
+Implement a function in x86-64 assembly that converts a grayscale image stored as 8-bit unsigned integers into a double-precision floating point representation by applying $f = \frac{i}{255}$.
+
+## Instructions
 
 ### 0. Clone
 
