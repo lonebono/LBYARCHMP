@@ -4,7 +4,7 @@
 #include <time.h>
 #include <math.h>
 
-extern void convert(uint8_t *pixel, double *doubles, size_t count);
+extern void imgCvtGrayIntToDouble(uint8_t *pixel, double *doubles, size_t count);
 
 // measures average execution time
 static double measureTime(uint8_t *pixel, double *doubles, size_t n, int runs)
@@ -13,7 +13,7 @@ static double measureTime(uint8_t *pixel, double *doubles, size_t n, int runs)
     for (int i = 0; i < runs; ++i)
     {
         clock_t t0 = clock();
-        convert(pixel, doubles, n);
+        imgCvtGrayIntToDouble(pixel, doubles, n);
         clock_t t1 = clock();
         total += (double)(t1 - t0) / CLOCKS_PER_SEC;
     }
@@ -41,7 +41,7 @@ int main(void)
     uint8_t pixel[] = {64, 89, 114, 84, 140, 166, 191, 84, 216, 242, 38, 84};
     double doubles[h * w];
 
-    convert(pixel, doubles, h * w);
+    imgCvtGrayIntToDouble(pixel, doubles, h * w);
     printf("Sample output:\n");
     for (int r = 0; r < h; r++)
     {

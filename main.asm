@@ -1,10 +1,10 @@
-global convert
+global imgCvtGrayIntToDouble
 
 section .data
 formula  DQ 0.003921568627451 ; precomputed
 
 section .text
-convert:
+imgCvtGrayIntToDouble:
     TEST R8, R8
     JZ .RET
 
