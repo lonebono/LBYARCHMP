@@ -9,6 +9,16 @@
 
 Implement a function in x86-64 assembly that converts a grayscale image stored as 8-bit unsigned integers into a double-precision floating point representation by applying $f = \frac{i}{255}$.
 
+## Files
+
+### main.c
+
+Contains the C code that sets up the inputs, allocates memory, calls the assembly function, prints results, checks correctness, and measures runtime.
+
+### main.asm
+
+Contains the assembly code that converts 8-bit grayscale values to double-precision values in the range [0, 1] using required x86-64 scalar instructions.
+
 ## Instructions
 
 ### 0. Clone

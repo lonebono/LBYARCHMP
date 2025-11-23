@@ -6,84 +6,115 @@
 
 extern void imgCvtGrayIntToDouble(uint8_t *pixel, double *doubles, size_t count);
 
-// measures average execution time
-static double measureTime(uint8_t *pixel, double *doubles, size_t n, int runs)
+int validateConversion(uint8_t *input, double *output, size_t pixelCount)
 {
-    double total = 0.0;
-    for (int i = 0; i < runs; ++i)
-    {
-        clock_t t0 = clock();
-        imgCvtGrayIntToDouble(pixel, doubles, n);
-        clock_t t1 = clock();
-        total += (double)(t1 - t0) / CLOCKS_PER_SEC;
-    }
-    return total / runs;
-}
+    const double tolerance = 1e-12;
 
-// check correctness of  conversion against expected vals
-static int checker(uint8_t *pixel, double *doubles, size_t n)
-{
-    const double eps = 1e-12;
-    for (size_t i = 0; i < n; ++i)
+    for (size_t idx = 0; idx < pixelCount; idx++)
     {
-        double ref = ((double)pixel[i]) / 255.0;
-        if (fabs(ref - doubles[i]) > eps)
+        double expectedValue = ((double)input[idx]) / 255.0;
+        double actualValue = output[idx];
+
+        if (fabs(expectedValue - actualValue) > tolerance)
+        {
             return 0;
+        }
     }
+
     return 1;
 }
 
-// main function
-int main(void)
+double benchmarkFunction(uint8_t *input, double *output, size_t count, int iterations)
 {
-    // convert and print sample output
-    const int h = 3, w = 4;
-    uint8_t pixel[] = {64, 89, 114, 84, 140, 166, 191, 84, 216, 242, 38, 84};
-    double doubles[h * w];
+    double totalElapsed = 0.0;
 
-    imgCvtGrayIntToDouble(pixel, doubles, h * w);
-    printf("Sample output:\n");
-    for (int r = 0; r < h; r++)
+    for (int run = 0; run < iterations; run++)
     {
-        for (int c = 0; c < w; c++)
-            printf("%.2f ", doubles[r * w + c]);
-        printf("\n");
+        clock_t startTime = clock();
+        imgCvtGrayIntToDouble(input, output, count);
+        clock_t endTime = clock();
+
+        double elapsed = (double)(endTime - startTime) / CLOCKS_PER_SEC;
+        totalElapsed += elapsed;
     }
 
-    // randomized input and output with different sizes
-    int runs = 30;
-    size_t sizes[3][2] = {{10, 10}, {100, 100}, {1000, 1000}};
+    return totalElapsed / iterations;
+}
+
+void displaySampleOutput(double *data, int rows, int cols)
+{
+    printf("Output:\n");
+
+    for (int row = 0; row < rows; row++)
+    {
+        for (int col = 0; col < cols; col++)
+        {
+            int index = row * cols + col;
+            printf("%.2f ", data[index]);
+        }
+        printf("\n");
+    }
+}
+
+int main()
+{
+
+    const int sampleHeight = 3;
+    const int sampleWidth = 4;
+    const size_t sampleSize = sampleHeight * sampleWidth;
+
+    uint8_t sampleInput[] = {
+        64, 89, 114, 84,
+        140, 166, 191, 84,
+        216, 242, 38, 84};
+
+    double sampleOutput[sampleSize];
+
+    imgCvtGrayIntToDouble(sampleInput, sampleOutput, sampleSize);
+
+    displaySampleOutput(sampleOutput, sampleHeight, sampleWidth);
+
+    const int ITERATIONS = 30;
+    int testSizes[][2] = {
+        {10, 10},
+        {100, 100},
+        {1000, 1000}};
+    int numTests = sizeof(testSizes) / sizeof(testSizes[0]);
+
     srand((unsigned)time(NULL));
 
-    for (int t = 0; t < 3; t++)
+    for (int testIdx = 0; testIdx < numTests; testIdx++)
     {
-        size_t H = sizes[t][0];
-        size_t W = sizes[t][1];
-        size_t N = H * W;
+        int testHeight = testSizes[testIdx][0];
+        int testWidth = testSizes[testIdx][1];
+        size_t totalPixels = testHeight * testWidth;
 
-        // allocate memory
-        uint8_t *randomPixel = malloc(N);
-        double *convertedVal = malloc(N * sizeof(double));
-        if (!randomPixel || !convertedVal)
+        uint8_t *testInput = (uint8_t *)malloc(totalPixels * sizeof(uint8_t));
+        double *testOutput = (double *)malloc(totalPixels * sizeof(double));
+
+        if (testInput == NULL || testOutput == NULL)
         {
-            fprintf(stderr, "Memory allocation failed for %zux%zu\n", H, W);
+            fprintf(stderr, "Memory allocation failed for %dx%d\n", testHeight, testWidth);
             return 1;
         }
 
-        // initialize  with random  values
-        for (size_t i = 0; i < N; i++)
-            randomPixel[i] = rand() % 256;
+        for (size_t i = 0; i < totalPixels; i++)
+        {
+            testInput[i] = rand() % 256;
+        }
 
-        double avgTime = measureTime(randomPixel, convertedVal, N, runs);
+        double avgExecutionTime = benchmarkFunction(testInput, testOutput, totalPixels, ITERATIONS);
+
+        int isCorrect = validateConversion(testInput, testOutput, totalPixels);
 
         printf("\n");
-        printf("Size: %zux%zu\n", H, W, N);
-        printf("Average time: %.9fs\n", avgTime);
-        printf("Run count: %d\n", runs);
-        printf("Correctness: %s\n", checker(randomPixel, convertedVal, N) ? "CORRECT" : "WRONG");
+        printf("Size: %dx%d\n", testHeight, testWidth);
+        printf("Average time: %.9fs\n", avgExecutionTime);
+        printf("Run count: %d\n", ITERATIONS);
+        printf("Correctness: %s\n", isCorrect ? "CORRECT" : "WRONG");
 
-        free(randomPixel);
-        free(convertedVal);
+        free(testInput);
+        free(testOutput);
     }
 
     return 0;
